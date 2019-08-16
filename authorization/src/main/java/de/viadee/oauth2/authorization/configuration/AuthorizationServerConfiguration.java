@@ -11,6 +11,9 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
+
+import javax.sql.DataSource;
 
 /**
  * Configuration of OAuth2 authorization server.
@@ -21,6 +24,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private DataSource dataSource;
 
     @Autowired
     public AuthorizationServerConfiguration(AuthenticationConfiguration authenticationConfiguration, PasswordEncoder passwordEncoder) {
@@ -50,8 +56,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         // @formatter:off
-        clients
+        clients.jdbc(dataSource)
             // For this example, create client configuration in-memory
+            /*
             .inMemory()
                 .withClient("api-gateway")
                 .secret(passwordEncoder.encode("secret"))
@@ -60,8 +67,11 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
             .and()
                 .withClient("produkte")
                 .secret(passwordEncoder.encode("secret"))
-                .authorities("CHECK_AUTH_TOKEN")
+                .authorities("CHECK_AUTH_TOKEN");
+             */
+
         ;
+
         // @formatter:on
     }
 
@@ -87,5 +97,11 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     public InMemoryTokenStore tokenStore() {
         return new InMemoryTokenStore();
     }
+    /*
+    @Bean
+    public JdbcTokenStore tokenStore() {
+        return new JdbcTokenStore(dataSource);
+    }
 
+     */
 }
